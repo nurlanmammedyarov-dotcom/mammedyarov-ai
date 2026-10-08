@@ -1,6 +1,5 @@
 import streamlit as st
-import urllib.request
-import json
+import google.generativeai as genai
 
 BOT_AVATAR = "https://i.ibb.co/64598/image.jpg" 
 
@@ -87,6 +86,23 @@ if not api_key:
     st.error("⚠️ GEMINI_API_KEY çatışmır! Lütfən Streamlit Secrets hissəsini yoxlayın.")
     st.stop()
 
+# GenAI konfiqurasiyası
+genai.configure(api_key=api_key)
+
+# Model təyinatı (system_instruction dəstəkləyən stabil versiya)
+generation_config = {
+    "temperature": 0.7,
+}
+
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config=generation_config,
+    system_instruction="Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab ver."
+)
+
+if "chat_session" not in st.session_state:
+    st.session_state.chat_session = model.start_chat(history=[])
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -103,31 +119,11 @@ if user_input:
     st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI yazır..."):
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-        
-        # Xəta verən parametrlər silindi, birbaşa təmiz struktur göndərilir
-        payload = {
-            "contents": [{
-                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"}]
-            }]
-        }
-        
         try:
-            req_data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(
-                url, 
-                data=req_data, 
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            with urllib.request.urlopen(req) as response:
-                res_json = json.loads(response.read().decode("utf-8"))
-                if "candidates" in res_json:
-                    bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
-                    st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
-                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
-                else:
-                    st.markdown(f'<div class="bot-bubble">Cavab tapılmadı.</div>', unsafe_allow_html=True)
+            response = st.session_state.chat_session.send_message(user_input)
+            bot_reply = response.text
+            st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
+            st.session_state.messages.append({"role": "assistant", "content": bot_reply})
         except Exception as e:
             st.markdown(f'<div class="bot-bubble">Xəta baş verdi: {e}</div>', unsafe_allow_html=True)
             
