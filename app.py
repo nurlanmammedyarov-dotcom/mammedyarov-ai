@@ -1,6 +1,7 @@
 import streamlit as st
 import urllib.request
 import json
+import time
 
 BOT_AVATAR = "https://i.ibb.co/64598/image.jpg" 
 
@@ -81,14 +82,13 @@ st.markdown("""
 st.title("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼")
 st.caption("Məmmədyarov tərəfindən yaradılmış süni intellekt")
 
-# API açarını təhlükəsiz oxumaq
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
 except:
     api_key = None
 
 if not api_key:
-    st.error("⚠️ GEMINI_API_KEY tapılmadı! Streamlit panelində 'Settings' -> 'Secrets' bölməsinə əlavə etdiyinizdən əmin olun.")
+    st.error("⚠️ GEMINI_API_KEY tapılmadı! Lütfən Streamlit Secrets bölməsini yoxlayın.")
     st.stop()
 
 if "messages" not in st.session_state:
@@ -103,40 +103,5 @@ for msg in st.session_state.messages:
 user_input = st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-ya bir şey yazın...")
 
 if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
-
-    with st.spinner("Məmmədyarov AI yazır..."):
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-        
-        payload = {
-            "contents": [{
-                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır. Qısa və azərbaycan dilində cavab ver: {user_input}"}]
-            }]
-        }
-        
-        try:
-            req_data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(
-                url, 
-                data=req_data, 
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            with urllib.request.urlopen(req, timeout=15) as response:
-                res_json = json.loads(response.read().decode("utf-8"))
-                if "candidates" in res_json:
-                    bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
-                    st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_app_html=True)
-                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
-                else:
-                    st.markdown(f'<div class="bot-bubble">Model cavab qaytarmadı.</div>', unsafe_allow_html=True)
-                    
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode()
-            if e.code == 429:
-                st.markdown(f'<div class="bot-bubble">⚠️ API limiti aşıldı (429). Google bu açara qısa müddətli məhdudiyyət qoyub. Zəhmət olmasa 1 dəqiqə gözləyin.</div>', unsafe_allow_html=True)
-            else:
-                st.markdown(f'<div class="bot-bubble">Xəta baş verdi ({e.code}): {error_body}</div>', unsafe_allow_html=True)
-        except Exception as e:
-            st.markdown(f'<div class="bot-bubble">Bağlantı xətası: {e}</div>', unsafe_allow_html=True)
+    st.session_state.messages.append({"role": "user", "
+                                      
