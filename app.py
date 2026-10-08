@@ -38,7 +38,7 @@ if user_input := st.chat_input("Məmmədyarov AI-ya bir şey yazın..."):
         with st.spinner("Məmmədyarov AI düşünür..."):
             try:
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-1.5-flash",
                     contents=user_input,
                     config=types.GenerateContentConfig(
                         system_instruction=system_instruction,
