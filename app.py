@@ -45,8 +45,8 @@ if user_input:
 
     with st.spinner("Məmmədyarov AI düşünür..."):
         try:
-            # Ən son rəsmi standart model adı (heç vaxt 404 vermir)
-            model = genai.GenerativeModel('gemini-1.5-flash-latest')
+            # Düzgün və rəsmi təmiz model adı
+            model = genai.GenerativeModel('gemini-1.5-flash')
             prompt = f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Həmişə çox ağıllı, səmimi, köməksevər və səlis azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"
             
             response = model.generate_content(prompt)
