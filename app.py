@@ -42,7 +42,8 @@ if user_input:
     st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI düşünür..."):
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+        # v1 əvəzinə düzgün işləyən v1beta ünvanı
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         
         payload = {
             "contents": [{
@@ -72,4 +73,4 @@ if user_input:
             st.markdown(f'<div class="bot-bubble">Xəta ({e.code}): {err_msg}</div>', unsafe_allow_html=True)
         except Exception as e:
             st.markdown(f'<div class="bot-bubble">Xəta baş verdi: {str(e)}</div>', unsafe_allow_html=True)
-                
+            
