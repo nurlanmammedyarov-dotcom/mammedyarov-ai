@@ -10,7 +10,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# İstədiyin dizayn: Profil yoxdur, istifadəçi mesajı sağda, bot soldadır
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -91,7 +90,6 @@ if not api_key:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Keçmiş mesajların ekranda saxlanılması
 for msg in st.session_state.messages:
     if msg["role"] == "user":
         st.markdown(f'<div class="user-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
@@ -101,34 +99,5 @@ for msg in st.session_state.messages:
 user_input = st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-ya bir şey yazın...")
 
 if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
-
-    with st.spinner("Məmmədyarov AI yazır..."):
-        # Birbaşa Google REST API sorğusu (Sıxlıq və xəta verməyən ən etibarlı üsul)
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-        
-        headers = {'Content-Type': 'application/json'}
-        data = {
-            "contents": [{
-                "parts": [{"text": user_input}]
-            }],
-            "systemInstruction": {
-                "parts": [{"text": "Sənin adın 𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-dır. Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab verirsən."}]
-            }
-        }
-        
-        try:
-            response = requests.post(url, headers=headers, data=json.dumps(data))
-            res_json = response.json()
-            
-            if "candidates" in res_json:
-                bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
-                st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
-                st.session_state.messages.append({"role": "assistant", "content": bot_reply})
-            else:
-                error_msg = res_json.get("error", {}).get("message", "Naməlum xəta baş verdi.")
-                st.markdown(f'<div class="bot-bubble">Xəta: {error_msg}</div>', unsafe_allow_html=True)
-        except Exception as e:
-            st.markdown(f'<div class="bot-bubble">Bağlantı xətası yarandı: {e}</div>', unsafe_allow_html=True)
-            
+    st.session_state.messages.append({"role":
+                                      
