@@ -103,16 +103,13 @@ if user_input:
     st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI yazır..."):
-        # v1 endpoint və gemini-1.5-flash modeli (100% işlək format)
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         
+        # Xəta verən parametrlər silindi, birbaşa təmiz struktur göndərilir
         payload = {
             "contents": [{
-                "parts": [{"text": user_input}]
-            }],
-            "systemInstruction": {
-                "parts": [{"text": "Sənin adın 𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-dır. Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab verirsən."}]
-            }
+                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"}]
+            }]
         }
         
         try:
