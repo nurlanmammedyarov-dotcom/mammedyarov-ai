@@ -38,7 +38,8 @@ if user_input:
     st.chat_message("user").write(user_input)
 
     with st.spinner("Məmmədyarov AI düşünür..."):
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        # Güncellenen yeni model adresi: gemini-3.8-flash
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={api_key}"
         
         payload = {
             "contents": [{
