@@ -1,6 +1,7 @@
 import streamlit as st
 import urllib.request
 import json
+import time
 
 BOT_AVATAR = "https://i.ibb.co/64598/image.jpg" 
 
@@ -103,31 +104,44 @@ if user_input:
     st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI yazır..."):
-        # Rəsmi işlək v1beta endpoint və gemini-3.8-flash modeli
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         
         payload = {
             "contents": [{
-                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab ver. İstifadəçi deyir: {user_input}"}]
-            }]
+                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır. Qısa, dəqiq və sürətli şəkildə azərbaycan dilində cavab ver. İstifadəçi: {user_input}"}]
+            }],
+            "generationConfig": {
+                "temperature": 0.4,
+                "maxOutputTokens": 1000
+            }
         }
         
-        try:
-            req_data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(
-                url, 
-                data=req_data, 
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            with urllib.request.urlopen(req) as response:
-                res_json = json.loads(response.read().decode("utf-8"))
-                if "candidates" in res_json:
-                    bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
-                    st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
-                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
-                else:
-                    st.markdown(f'<div class="bot-bubble">Cavab alınmadı.</div>', unsafe_allow_html=True)
-        except Exception as e:
-            st.markdown(f'<div class="bot-bubble">Xəta baş verdi: {e}</div>', unsafe_allow_html=True)
+        bot_reply = None
+        req_data = json.dumps(payload).encode("utf-8")
+        
+        # Xəta olarsa avtomatik 3 dəfəyə qədər təkrar cəhd edən mexanizm
+        for attempt in range(3):
+            try:
+                req = urllib.request.Request(
+                    url, 
+                    data=req_data, 
+                    headers={'Content-Type': 'application/json'}
+                )
+                
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    res_json = json.loads(response.read().decode("utf-8"))
+                    if "candidates" in res_json:
+                        bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
+                        break
+            except Exception:
+                time.sleep(1) # 1 saniyə gözləyib yenidən yoxlayır
+                continue
+
+        if bot_reply:
+            st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
+            st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+        else:
+            fallback_msg = "Sistemdə qısamüddətli sıxlıq oldu. Zəhmət olmasa bir az sonra yenidən yazın."
+            st.markdown(f'<div class="bot-bubble">{fallback_msg}</div>', unsafe_allow_html=True)
+            st.session_state.messages.append({"role": "assistant", "content": fallback_msg})
             
