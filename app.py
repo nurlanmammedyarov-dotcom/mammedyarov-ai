@@ -87,7 +87,7 @@ except:
     api_key = None
 
 if not api_key:
-    st.error("⚠️ GEMINI_API_KEY tapılmadı! Lütfən Streamlit Secrets bölməsini yoxlayın.")
+    st.error("⚠️ GEMINI_API_KEY tapılmadı! Streamlit Secrets bölməsini yoxlayın.")
     st.stop()
 
 if "messages" not in st.session_state:
@@ -106,7 +106,8 @@ if user_input:
     st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI düşünür..."):
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        # v1 versiyası üzərindən stabil işləmə
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
         
         payload = {
             "contents": [{
@@ -129,7 +130,10 @@ if user_input:
                     st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
                     st.session_state.messages.append({"role": "assistant", "content": bot_reply})
                 else:
-                    st.markdown(f'<div class="bot-bubble">Cavab alınmadı. Zəhmət olmasa bir daha yazın.</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="bot-bubble">Model cavab qaytarmadı.</div>', unsafe_allow_html=True)
+                    
+        except urllib.error.HTTPError as e:
+            err_msg = e.read().decode()
+            st.markdown(f'<div class="bot-bubble">HTTP Xətası ({e.code}): {err_msg}</div>', unsafe_allow_html=True)
         except Exception as e:
-            st.markdown(f'<div class="bot-bubble">Bağlantı xətası baş verdi. Zəhmət olmasa bir az sonra yenidən cəhd edin.</div>', unsafe_allow_html=True)
-            
+            st.markdown(f'<div class="bot-bubble">Xəta baş verdi: {str(e)}</div>', unsafe_allow_html=True)
