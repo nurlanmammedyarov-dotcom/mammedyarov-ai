@@ -45,18 +45,7 @@ if user_input:
 
     with st.spinner("Məmmədyarov AI düşünür..."):
         try:
-            # Avtomatik olaraq mövcud işlək modeli tapır (404 xətasını qətiyyən vermir)
-            available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-            
-            chosen_model_name = 'gemini-1.5-flash'
-            for m in available_models:
-                if '1.5-flash' in m:
-                    chosen_model_name = m
-                    break
-            elif available_models:
-                chosen_model_name = available_models[0]
-
-            model = genai.GenerativeModel(chosen_model_name)
+            model = genai.GenerativeModel('gemini-1.5-flash')
             prompt = f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Həmişə çox ağıllı, səmimi, köməksevər və səlis azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"
             
             response = model.generate_content(prompt)
@@ -67,3 +56,4 @@ if user_input:
             
         except Exception as e:
             st.markdown(f'<div class="bot-bubble">Xəta baş verdi: {str(e)}</div>', unsafe_allow_html=True)
+            
