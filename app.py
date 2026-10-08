@@ -16,14 +16,12 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
     
-    /* Ümumi fon və şrift */
     html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
         font-family: 'Poppins', sans-serif !important;
         background-color: #000000 !important;
         color: #ffffff !important;
     }
 
-    /* Başlıq sahəsi */
     h1 {
         font-family: 'Poppins', sans-serif !important;
         font-weight: 600 !important;
@@ -38,7 +36,6 @@ st.markdown("""
         margin-bottom: 25px !important;
     }
 
-    /* Çat konteyneri */
     .stChatMessage {
         background-color: transparent !important;
         padding: 6px 0px !important;
@@ -59,7 +56,6 @@ st.markdown("""
         margin-left: auto !important;
         max-width: 82% !important;
         font-size: 15px !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
     /* Bot mesajı (Sol tərəf - Instagram Tünd Boz) */
@@ -73,7 +69,6 @@ st.markdown("""
         font-size: 15px !important;
     }
 
-    /* Avatarların tam dəyirmi və düzgün ölçüdə görünməsi */
     [data-testid="stChatMessageAvatarCustom"] img, [data-testid="stChatMessageAvatarUser"] img {
         border-radius: 50% !important;
         object-fit: cover !important;
@@ -82,7 +77,6 @@ st.markdown("""
         min-width: 36px !important;
     }
 
-    /* Giriş paneli (Input box) */
     .stChatInputContainer {
         border-radius: 28px !important;
         background-color: #121212 !important;
@@ -100,7 +94,6 @@ st.markdown("""
 st.title("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼")
 st.caption("Məmmədyarov tərəfindən yaradılmış süni intellekt")
 
-# API Açarı yoxlanışı
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if not api_key:
@@ -112,13 +105,11 @@ client = genai.Client(api_key=api_key)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Keçmiş mesajlar
 for msg in st.session_state.messages:
     avatar = BOT_AVATAR if msg["role"] == "assistant" else None
     with st.chat_message(msg["role"], avatar=avatar):
         st.write(msg["content"])
 
-# Yeni mesaj daxil edildikdə
 if user_input := st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-ya bir şey yazın..."):
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
@@ -126,18 +117,28 @@ if user_input := st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 �
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Məmmədyarov AI yazır..."):
-            try:
-                response = client.models.generate_content(
-                    model="gemini-3.8-flash",
-                    contents=user_input,
-                    config=types.GenerateContentConfig(
-                        system_instruction="Sənin adın 𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-dır. Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab verırsən.",
-                        temperature=0.7,
+            # Modellər siyahısı (503 yüklənməsi olduqda sırayla digərinə keçəcək)
+            models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+            response_text = None
+            
+            for model_name in models_to_try:
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=user_input,
+                        config=types.GenerateContentConfig(
+                            system_instruction="Sənin adın 𝑀𝑎𝑚𝑚𝑒dm𝑎𝑟𝑜𝑣 𝐴𝐼-dır. Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab verırsən.",
+                            temperature=0.7,
+                        )
                     )
-                )
-                bot_reply = response.text
-                st.write(bot_reply)
-                st.session_state.messages.append({"role": "assistant", "content": bot_reply})
-            except Exception as e:
-                st.error(f"Xəta baş verdi: {e}")
+                    response_text = response.text
+                    break
+                except Exception:
+                    continue
+
+            if response_text:
+                st.write(response_text)
+                st.session_state.messages.append({"role": "assistant", "content": response_text})
+            else:
+                st.error("Serverlərdə müvəqqəti sıxlıq var, lütfən bir neçə saniyə sonra yenidən yoxlayın.")
                 
