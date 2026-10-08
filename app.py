@@ -1,6 +1,5 @@
 import streamlit as st
-import urllib.request
-import json
+import google.generativeai as genai
 
 BOT_AVATAR = "https://i.ibb.co/64598/image.jpg" 
 
@@ -27,6 +26,8 @@ if not api_key:
     st.error("⚠️ GEMINI_API_KEY tapılmadı! Streamlit Secrets bölməsini yoxlayın.")
     st.stop()
 
+genai.configure(api_key=api_key)
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -43,34 +44,16 @@ if user_input:
     st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI düşünür..."):
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
-        
-        payload = {
-            "contents": [{
-                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Həmişə çox ağıllı, səmimi, köməksevər və səlis azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"}]
-            }]
-        }
-        
         try:
-            req_data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(
-                url, 
-                data=req_data, 
-                headers={'Content-Type': 'application/json'}
-            )
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            prompt = f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Həmişə çox ağıllı, səmimi, köməksevər və səlis azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"
             
-            with urllib.request.urlopen(req, timeout=15) as response:
-                res_json = json.loads(response.read().decode("utf-8"))
-                if "candidates" in res_json:
-                    bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
-                    st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
-                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
-                else:
-                    st.markdown(f'<div class="bot-bubble">Cavab alınmadı.</div>', unsafe_allow_html=True)
-                    
-        except urllib.error.HTTPError as e:
-            err_msg = e.read().decode()
-            st.markdown(f'<div class="bot-bubble">Xəta ({e.code}): {err_msg}</div>', unsafe_allow_html=True)
+            response = model.generate_content(prompt)
+            bot_reply = response.text
+            
+            st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
+            st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+            
         except Exception as e:
             st.markdown(f'<div class="bot-bubble">Xəta baş verdi: {str(e)}</div>', unsafe_allow_html=True)
             
