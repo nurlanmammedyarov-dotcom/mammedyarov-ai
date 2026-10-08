@@ -30,15 +30,18 @@ st.markdown("""
     
     div[data-testid="stCaptionContainer"] {
         text-align: center;
-        color: #a0a0a0 !important;
+        color: #8e8e93 !important;
         margin-bottom: 25px !important;
     }
 
+    /* iPhone iOS Şüşəvari (Glassmorphism) Baloncuk Dizaynı */
     .user-bubble {
-        background: linear-gradient(135deg, #6B38FB, #802BFE) !important;
+        background: rgba(0, 122, 255, 0.85) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         color: #ffffff !important;
         padding: 12px 18px !important;
-        border-radius: 22px 22px 4px 22px !important;
+        border-radius: 20px 20px 4px 20px !important;
         max-width: 75% !important;
         font-size: 15px !important;
         margin-left: auto !important;
@@ -46,14 +49,17 @@ st.markdown("""
         text-align: left !important;
         word-wrap: break-word !important;
         display: block !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 12px !important;
+        box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
     }
 
     .bot-bubble {
-        background-color: #262626 !important;
+        background: rgba(44, 44, 46, 0.75) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         color: #ffffff !important;
         padding: 12px 18px !important;
-        border-radius: 22px 22px 22px 4px !important;
+        border-radius: 20px 20px 20px 4px !important;
         max-width: 75% !important;
         font-size: 15px !important;
         margin-right: auto !important;
@@ -61,6 +67,44 @@ st.markdown("""
         text-align: left !important;
         word-wrap: break-word !important;
         display: block !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
 
-    
+    /* Instagram/iOS Tərzində Yazı Sahəsi */
+    .stChatInputContainer {
+        border-radius: 24px !important;
+        background: rgba(28, 28, 30, 0.8) !important;
+        backdrop-filter: blur(25px) !important;
+        -webkit-backdrop-filter: blur(25px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        padding: 4px !important;
+    }
+
+    .stChatInput textarea {
+        color: #ffffff !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼")
+st.caption("Məmmədyarov tərəfindən yaradılmış süni intellekt")
+
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
+except:
+    api_key = None
+
+if not api_key:
+    st.error("⚠️ GEMINI_API_KEY tapılmadı! Streamlit Secrets bölməsini yoxlayın.")
+    st.stop()
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.markdown(f'<div class="user-bubble">{
+            
