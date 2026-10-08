@@ -2,7 +2,7 @@ import streamlit as st
 from google import genai
 from google.genai import types
 
-# Profil və İkon üçün göndərdiyin estetik şəkil
+# Profil və İkon üçün estetik şəkil
 BOT_AVATAR = "https://i.ibb.co/64598.jpg" 
 
 st.set_page_config(
@@ -16,35 +16,36 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
     
-    /* Ümumi font və fon */
-    html, body, [data-testid="stAppViewContainer"] {
+    /* Ümumi fon və şrift */
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
         font-family: 'Poppins', sans-serif !important;
         background-color: #000000 !important;
         color: #ffffff !important;
     }
 
-    /* Başlıq tənzimlənməsi */
+    /* Başlıq sahəsi */
     h1 {
         font-family: 'Poppins', sans-serif !important;
         font-weight: 600 !important;
         text-align: center;
+        color: #ffffff !important;
         margin-bottom: 0px !important;
     }
     
     div[data-testid="stCaptionContainer"] {
         text-align: center;
         color: #a0a0a0 !important;
-        margin-bottom: 20px !important;
+        margin-bottom: 25px !important;
     }
 
-    /* Mesaj konteyneri */
+    /* Çat konteyneri */
     .stChatMessage {
         background-color: transparent !important;
-        padding: 4px 0px !important;
+        padding: 6px 0px !important;
         border: none !important;
     }
 
-    /* İstifadəçi mesajı (Sağ tərəf - Instagram Bənövşəyi) */
+    /* İstifadəçi mesajı (Sağ tərəf - Instagram Bənövşəyi Gradient) */
     div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {
         flex-direction: row-reverse !important;
     }
@@ -52,38 +53,41 @@ st.markdown("""
     div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) div[data-testid="stMarkdownContainer"] p {
         background: linear-gradient(135deg, #6B38FB, #802BFE) !important;
         color: #ffffff !important;
-        padding: 10px 16px !important;
-        border-radius: 20px 20px 4px 20px !important;
+        padding: 12px 18px !important;
+        border-radius: 22px 22px 4px 22px !important;
         display: inline-block;
         margin-left: auto !important;
-        max-width: 80% !important;
+        max-width: 82% !important;
         font-size: 15px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
     /* Bot mesajı (Sol tərəf - Instagram Tünd Boz) */
     div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarCustom"]) div[data-testid="stMarkdownContainer"] p {
         background-color: #262626 !important;
         color: #ffffff !important;
-        padding: 10px 16px !important;
-        border-radius: 20px 20px 20px 4px !important;
+        padding: 12px 18px !important;
+        border-radius: 22px 22px 22px 4px !important;
         display: inline-block;
-        max-width: 80% !important;
+        max-width: 82% !important;
         font-size: 15px !important;
     }
 
-    /* Profil avatarlarının yuvarlaqlaşdırılması */
+    /* Avatarların tam dəyirmi və düzgün ölçüdə görünməsi */
     [data-testid="stChatMessageAvatarCustom"] img, [data-testid="stChatMessageAvatarUser"] img {
         border-radius: 50% !important;
         object-fit: cover !important;
-        width: 32px !important;
-        height: 32px !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
     }
 
-    /* Giriş sahəsi (Input box - Instagram alt paneli kimi) */
+    /* Giriş paneli (Input box) */
     .stChatInputContainer {
-        border-radius: 25px !important;
+        border-radius: 28px !important;
         background-color: #121212 !important;
         border: 1px solid #262626 !important;
+        padding: 2px !important;
     }
 
     .stChatInput textarea {
@@ -108,13 +112,13 @@ client = genai.Client(api_key=api_key)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Keçmiş mesajların Instagram stilində göstərilməsi
+# Keçmiş mesajlar
 for msg in st.session_state.messages:
     avatar = BOT_AVATAR if msg["role"] == "assistant" else None
     with st.chat_message(msg["role"], avatar=avatar):
         st.write(msg["content"])
 
-# Yeni mesaj göndərilməsi
+# Yeni mesaj daxil edildikdə
 if user_input := st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-ya bir şey yazın..."):
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
