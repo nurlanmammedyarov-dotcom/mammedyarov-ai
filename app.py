@@ -2,17 +2,30 @@ import streamlit as st
 from google import genai
 from google.genai import types
 
-# Brauzer tabında görünən ad
+# Saytın adı və brauzer tabı
 st.set_page_config(page_title="𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼", page_icon="😎")
 
-# Sənin seçdiyin profil şəklinin linki
-BOT_AVATAR = "https://i.ibb.co/example/photo.jpg"  # ImgBB və ya başqa yerə yüklədiyin şəklin linkini bura yaz
+# ÇAT YAZI TİPİNİ (FONT) DƏYİŞƏN CSS STİLİ
+st.markdown("""
+    <style>
+    /* Google-dan xüsusi font gətiririk (Poppins fontu) */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;1,400&display=swap');
 
-# Saytın yuxarısındakı əsas başliq
+    /* Çat mesajlarının yazı tipini və stilini tənzimləyirik */
+    .stChatMessage, .stChatInput textarea, div[data-testid="stMarkdownContainer"] p {
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 16px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Profil şəklinin linki
+BOT_AVATAR = "https://i.ibb.co/example/photo.jpg"  # Öz şəkil linkini bura yaz
+
+# Əsas başlıq
 st.title("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼")
 st.caption("Məmmədyarov tərəfindən yaradılmış süni intellekt")
 
-# API Açarı
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if not api_key:
@@ -24,7 +37,6 @@ client = genai.Client(api_key=api_key)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Keçmiş mesajlarda profil şəkli
 for msg in st.session_state.messages:
     avatar = BOT_AVATAR if msg["role"] == "assistant" else None
     with st.chat_message(msg["role"], avatar=avatar):
