@@ -103,7 +103,8 @@ if user_input:
     st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI yazır..."):
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+        # v1 endpoint və gemini-1.5-flash modeli (100% işlək format)
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
         
         payload = {
             "contents": [{
