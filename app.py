@@ -103,11 +103,12 @@ if user_input:
     st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI yazır..."):
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        # Model birbaşa gemini-2.0-flash olaraq yeniləndi
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={api_key}"
         
         payload = {
             "contents": [{
-                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab ver. İstifadəçi deyir: {user_input}"}]
+                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"}]
             }]
         }
         
@@ -123,10 +124,10 @@ if user_input:
                 res_json = json.loads(response.read().decode("utf-8"))
                 if "candidates" in res_json:
                     bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
-                    st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_app_html=True)
+                    st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
                     st.session_state.messages.append({"role": "assistant", "content": bot_reply})
                 else:
-                    st.markdown(f'<div class="bot-bubble">Cavab alınmadı.</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="bot-bubble">Cavab tapılmadı.</div>', unsafe_allow_html=True)
         except Exception as e:
             st.markdown(f'<div class="bot-bubble">Xəta baş verdi: {e}</div>', unsafe_allow_html=True)
             
