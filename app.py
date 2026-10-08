@@ -10,45 +10,62 @@ st.set_page_config(
     layout="centered"
 )
 
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-    
-    html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
-        font-family: 'Poppins', sans-serif !important;
-        background-color: #000000 !important;
-        color: #ffffff !important;
-    }
+st.title("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼")
+st.caption("Məmmədyarov tərəfindən yaradılmış süni intellekt")
 
-    h1 {
-        font-family: 'Poppins', sans-serif !important;
-        font-weight: 600 !important;
-        text-align: center;
-        color: #ffffff !important;
-        margin-bottom: 0px !important;
-    }
-    
-    div[data-testid="stCaptionContainer"] {
-        text-align: center;
-        color: #a0a0a0 !important;
-        margin-bottom: 25px !important;
-    }
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
+except:
+    api_key = None
 
-    .user-bubble {
-        background: linear-gradient(135deg, #6B38FB, #802BFE) !important;
-        color: #ffffff !important;
-        padding: 12px 18px !important;
-        border-radius: 22px 22px 4px 22px !important;
-        max-width: 75% !important;
-        font-size: 15px !important;
-        margin-left: auto !important;
-        margin-right: 0px !important;
-        text-align: left !important;
-        word-wrap: break-word !important;
-        display: block !important;
-        margin-bottom: 10px !important;
-    }
+if not api_key:
+    st.error("⚠️ GEMINI_API_KEY tapılmadı! Streamlit Secrets bölməsini yoxlayın.")
+    st.stop()
 
-    .bot-bubble {
-        background-color
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.chat_message("user").write(msg["content"])
+    else:
+        st.chat_message("assistant", avatar=BOT_AVATAR).write(msg["content"])
+
+user_input = st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-ya bir şey yazın...")
+
+if user_input:
+    st.session_state.messages.append({"role": "user", "content": user_input})
+    st.chat_message("user").write(user_input)
+
+    with st.spinner("Məmmədyarov AI düşünür..."):
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
         
+        payload = {
+            "contents": [{
+                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır. Səni Məmmədyarov yaradıb. Həmişə çox ağıllı, səmimi, köməksevər və səlis azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"}]
+            }]
+        }
+        
+        try:
+            req_data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                url, 
+                data=req_data, 
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            with urllib.request.urlopen(req, timeout=15) as response:
+                res_json = json.loads(response.read().decode("utf-8"))
+                if "candidates" in res_json:
+                    bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
+                    st.chat_message("assistant", avatar=BOT_AVATAR).write(bot_reply)
+                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+                else:
+                    st.chat_message("assistant", avatar=BOT_AVATAR).write("Model cavab qaytarmadı.")
+                    
+        except urllib.error.HTTPError as e:
+            err_msg = e.read().decode()
+            st.chat_message("assistant", avatar=BOT_AVATAR).write(f"HTTP Xətası ({e.code}): {err_msg}")
+        except Exception as e:
+            st.chat_message("assistant", avatar=BOT_AVATAR).write(f"Xəta baş verdi: {str(e)}")
+            
