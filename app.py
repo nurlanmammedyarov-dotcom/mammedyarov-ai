@@ -99,19 +99,31 @@ for msg in st.session_state.messages:
     else:
         st.markdown(f'<div class="bot-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
 
+# Səsli mesaj yazmaq üçün panel (st.audio_input)
+audio_file = st.audio_input("🎤 Səsli mesaj göndər (mikrofonu aktivləşdir)")
+
 user_input = st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-ya bir şey yazın...")
 
+prompt_to_send = None
+
 if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
+    prompt_to_send = user_input
+elif audio_file:
+    # Səs qeydə alındıqda mətnə çevrilməsimülasyonu və ya məlumat bildirilməsi
+    prompt_to_send = "[Səsli mesaj göndərildi. İstifadəçi səslə müraciət edir.]"
+
+if prompt_to_send:
+    st.session_state.messages.append({"role": "user", "content": prompt_to_send})
+    st.markdown(f'<div class="user-bubble">{prompt_to_send}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI düşünür..."):
-        # v1 versiyası üzərindən stabil işləmə
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+        
+        query_text = user_input if user_input else "Salam, mənə səsli mesaj göndərdim, məni salamla və necə kömək edə biləcəyimi soruş."
         
         payload = {
             "contents": [{
-                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Həmişə çox ağıllı, səmimi, köməksevər və səlis azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"}]
+                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır. Səni Məmmədyarov yaradıb. Həmişə çox ağıllı, səmimi, köməksevər və səlis azərbaycan dilində cavab ver. Mesaj: {query_text}"}]
             }]
         }
         
@@ -137,3 +149,4 @@ if user_input:
             st.markdown(f'<div class="bot-bubble">HTTP Xətası ({e.code}): {err_msg}</div>', unsafe_allow_html=True)
         except Exception as e:
             st.markdown(f'<div class="bot-bubble">Xəta baş verdi: {str(e)}</div>', unsafe_allow_html=True)
+            
