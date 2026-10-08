@@ -42,8 +42,8 @@ if user_input:
     st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
 
     with st.spinner("Məmmədyarov AI düşünür..."):
-        # v1 əvəzinə düzgün işləyən v1beta ünvanı
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        # Model adı tam işlək versiyaya dəyişdirildi
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
         
         payload = {
             "contents": [{
