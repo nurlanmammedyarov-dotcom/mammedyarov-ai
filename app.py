@@ -10,7 +10,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Instagram DM stilində xüsusi CSS (PP-lər gizlədilib)
+# Tam Instagram DM stili (Profil şəkilləri tamamilə yoxdur)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -35,47 +35,49 @@ st.markdown("""
         margin-bottom: 25px !important;
     }
 
+    /* Streamlit-in öz profil şəkillərini və sahələrini tam gizlət */
+    [data-testid="stChatMessageAvatarCustom"], 
+    [data-testid="stChatMessageAvatarUser"],
+    .stChatMessage img {
+        display: none !important;
+    }
+
     .stChatMessage {
         background-color: transparent !important;
         padding: 4px 0px !important;
         border: none !important;
     }
 
-    /* Profil şəkillərini (PP-ləri) tamamilə gizlət */
-    [data-testid="stChatMessageAvatarCustom"], [data-testid="stChatMessageAvatarUser"] {
-        display: none !important;
-    }
-
-    /* İstifadəçi mesajı (Sağ tərəf - Bənövşəyi Gradient) */
-    div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {
-        flex-direction: row-reverse !important;
-        justify-content: flex-start !important;
-    }
-    
-    div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) div[data-testid="stMarkdownContainer"] p {
+    /* Mesaj baloncukları üçün xüsusi stillər */
+    .user-bubble {
         background: linear-gradient(135deg, #6B38FB, #802BFE) !important;
         color: #ffffff !important;
         padding: 12px 18px !important;
         border-radius: 22px 22px 4px 22px !important;
-        display: inline-block;
-        margin-left: auto !important;
-        max-width: 80% !important;
+        max-width: 75% !important;
         font-size: 15px !important;
-        text-align: right !important;
+        margin-left: auto !important;
+        margin-right: 0px !important;
+        text-align: left !important;
+        word-wrap: break-word !important;
+        display: block !important;
     }
 
-    /* Bot mesajı (Sol tərəf - Tünd Boz) */
-    div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarCustom"]) div[data-testid="stMarkdownContainer"] p {
+    .bot-bubble {
         background-color: #262626 !important;
         color: #ffffff !important;
         padding: 12px 18px !important;
         border-radius: 22px 22px 22px 4px !important;
-        display: inline-block;
-        max-width: 80% !important;
+        max-width: 75% !important;
         font-size: 15px !important;
+        margin-right: auto !important;
+        margin-left: 0px !important;
         text-align: left !important;
+        word-wrap: break-word !important;
+        display: block !important;
     }
 
+    /* Input Sahəsi */
     .stChatInputContainer {
         border-radius: 28px !important;
         background-color: #121212 !important;
@@ -104,39 +106,12 @@ client = genai.Client(api_key=api_key)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Keçmiş mesajların göstərilməsi
 for msg in st.session_state.messages:
-    avatar = BOT_AVATAR if msg["role"] == "assistant" else None
-    with st.chat_message(msg["role"], avatar=avatar):
-        st.write(msg["content"])
+    if msg["role"] == "user":
+        st.markdown(f'<div class="user-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
+    else:
+        st.markdown(f'<div class="bot-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
 
-if user_input := st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-ya bir şey yazın..."):
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    with st.chat_message("user"):
-        st.write(user_input)
-
-    with st.chat_message("assistant", avatar=BOT_AVATAR):
-        with st.spinner("Məmmədyarov AI yazır..."):
-            models_to_try = ["gemini-2.0-flash", "gemini-1.5-flash"]
-            response_text = None
-            
-            for model_name in models_to_try:
-                try:
-                    response = client.models.generate_content(
-                        model=model_name,
-                        contents=user_input,
-                        config=types.GenerateContentConfig(
-                            system_instruction="Sənin adın 𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-dır. Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab verırsən.",
-                            temperature=0.7,
-                        )
-                    )
-                    response_text = response.text
-                    break
-                except Exception:
-                    continue
-
-            if response_text:
-                st.write(response_text)
-                st.session_state.messages.append({"role": "assistant", "content": response_text})
-            else:
-                st.error("Serverdə müvəqqəti sıxlıq var, lütfən bir az sonra yenidən yoxlayın.")
-                
+# Yeni mesaj göndərildikdə
+if user_input := st.chat
