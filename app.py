@@ -10,7 +10,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Tam Instagram DM stili (Profil şəkilləri tamamilə yoxdur)
+# Tam Instagram DM stili (Profil şəkilləri gizlədilib, istifadəçi mesajı tam sağdadır)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -35,7 +35,7 @@ st.markdown("""
         margin-bottom: 25px !important;
     }
 
-    /* Streamlit-in öz profil şəkillərini və sahələrini tam gizlət */
+    /* Profil şəkillərini tamamilə gizlət */
     [data-testid="stChatMessageAvatarCustom"], 
     [data-testid="stChatMessageAvatarUser"],
     .stChatMessage img {
@@ -48,7 +48,7 @@ st.markdown("""
         border: none !important;
     }
 
-    /* Mesaj baloncukları üçün xüsusi stillər */
+    /* İstifadəçi balonu - Tam Sağda */
     .user-bubble {
         background: linear-gradient(135deg, #6B38FB, #802BFE) !important;
         color: #ffffff !important;
@@ -63,6 +63,7 @@ st.markdown("""
         display: block !important;
     }
 
+    /* Bot balonu - Solda */
     .bot-bubble {
         background-color: #262626 !important;
         color: #ffffff !important;
@@ -77,7 +78,7 @@ st.markdown("""
         display: block !important;
     }
 
-    /* Input Sahəsi */
+    /* Daxil etmə sahəsi */
     .stChatInputContainer {
         border-radius: 28px !important;
         background-color: #121212 !important;
@@ -106,12 +107,42 @@ client = genai.Client(api_key=api_key)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Keçmiş mesajların göstərilməsi
+# Keçmiş mesajların ekrana çıxarılması
 for msg in st.session_state.messages:
     if msg["role"] == "user":
         st.markdown(f'<div class="user-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
     else:
         st.markdown(f'<div class="bot-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
 
-# Yeni mesaj göndərildikdə
-if user_input := st.chat
+# Yeni mesaj daxil etmə hissəsi
+user_input = st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-ya bir şey yazın...")
+
+if user_input:
+    st.session_state.messages.append({"role": "user", "content": user_input})
+    st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
+
+    with st.spinner("Məmmədyarov AI yazır..."):
+        models_to_try = ["gemini-2.0-flash", "gemini-1.5-flash"]
+        response_text = None
+        
+        for model_name in models_to_try:
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=user_input,
+                    config=types.GenerateContentConfig(
+                        system_instruction="Sənin adın 𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-dır. Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab verırsən.",
+                        temperature=0.7,
+                    )
+                )
+                response_text = response.text
+                break
+            except Exception:
+                continue
+
+        if response_text:
+            st.markdown(f'<div class="bot-bubble">{response_text}</div>', unsafe_allow_html=True)
+            st.session_state.messages.append({"role": "assistant", "content": response_text})
+        else:
+            st.error("Serverdə müvəqqəti sıxlıq var, lütfən bir az sonra yenidən yoxlayın.")
+            
