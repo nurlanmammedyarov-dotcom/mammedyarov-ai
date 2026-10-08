@@ -2,8 +2,7 @@ import streamlit as st
 from google import genai
 from google.genai import types
 
-# Profil və İkon üçün estetik şəkil
-BOT_AVATAR = "https://i.ibb.co/64598.jpg" 
+BOT_AVATAR = "https://i.ibb.co/64598/image.jpg" 
 
 st.set_page_config(
     page_title="𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼", 
@@ -11,7 +10,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Instagram DM stilində xüsusi CSS qrafikası
+# Instagram DM stilində xüsusi CSS (PP-lər gizlədilib)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -38,13 +37,19 @@ st.markdown("""
 
     .stChatMessage {
         background-color: transparent !important;
-        padding: 6px 0px !important;
+        padding: 4px 0px !important;
         border: none !important;
     }
 
-    /* İstifadəçi mesajı (Sağ tərəf - Instagram Bənövşəyi Gradient) */
+    /* Profil şəkillərini (PP-ləri) tamamilə gizlət */
+    [data-testid="stChatMessageAvatarCustom"], [data-testid="stChatMessageAvatarUser"] {
+        display: none !important;
+    }
+
+    /* İstifadəçi mesajı (Sağ tərəf - Bənövşəyi Gradient) */
     div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {
         flex-direction: row-reverse !important;
+        justify-content: flex-start !important;
     }
     
     div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) div[data-testid="stMarkdownContainer"] p {
@@ -54,27 +59,21 @@ st.markdown("""
         border-radius: 22px 22px 4px 22px !important;
         display: inline-block;
         margin-left: auto !important;
-        max-width: 82% !important;
+        max-width: 80% !important;
         font-size: 15px !important;
+        text-align: right !important;
     }
 
-    /* Bot mesajı (Sol tərəf - Instagram Tünd Boz) */
+    /* Bot mesajı (Sol tərəf - Tünd Boz) */
     div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarCustom"]) div[data-testid="stMarkdownContainer"] p {
         background-color: #262626 !important;
         color: #ffffff !important;
         padding: 12px 18px !important;
         border-radius: 22px 22px 22px 4px !important;
         display: inline-block;
-        max-width: 82% !important;
+        max-width: 80% !important;
         font-size: 15px !important;
-    }
-
-    [data-testid="stChatMessageAvatarCustom"] img, [data-testid="stChatMessageAvatarUser"] img {
-        border-radius: 50% !important;
-        object-fit: cover !important;
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
+        text-align: left !important;
     }
 
     .stChatInputContainer {
@@ -117,8 +116,7 @@ if user_input := st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 �
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Məmmədyarov AI yazır..."):
-            # Modellər siyahısı (503 yüklənməsi olduqda sırayla digərinə keçəcək)
-            models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+            models_to_try = ["gemini-2.0-flash", "gemini-1.5-flash"]
             response_text = None
             
             for model_name in models_to_try:
@@ -127,7 +125,7 @@ if user_input := st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 �
                         model=model_name,
                         contents=user_input,
                         config=types.GenerateContentConfig(
-                            system_instruction="Sənin adın 𝑀𝑎𝑚𝑚𝑒dm𝑎𝑟𝑜𝑣 𝐴𝐼-dır. Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab verırsən.",
+                            system_instruction="Sənin adın 𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-dır. Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab verırsən.",
                             temperature=0.7,
                         )
                     )
@@ -140,5 +138,5 @@ if user_input := st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 �
                 st.write(response_text)
                 st.session_state.messages.append({"role": "assistant", "content": response_text})
             else:
-                st.error("Serverlərdə müvəqqəti sıxlıq var, lütfən bir neçə saniyə sonra yenidən yoxlayın.")
+                st.error("Serverdə müvəqqəti sıxlıq var, lütfən bir az sonra yenidən yoxlayın.")
                 
