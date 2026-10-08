@@ -1,7 +1,6 @@
 import streamlit as st
 import urllib.request
 import json
-import time
 
 BOT_AVATAR = "https://i.ibb.co/64598/image.jpg" 
 
@@ -82,10 +81,14 @@ st.markdown("""
 st.title("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼")
 st.caption("Məmmədyarov tərəfindən yaradılmış süni intellekt")
 
-api_key = st.secrets.get("GEMINI_API_KEY")
+# API açarını təhlükəsiz oxumaq
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
+except:
+    api_key = None
 
 if not api_key:
-    st.error("⚠️ GEMINI_API_KEY çatışmır! Lütfən Streamlit Secrets hissəsini yoxlayın.")
+    st.error("⚠️ GEMINI_API_KEY tapılmadı! Streamlit panelində 'Settings' -> 'Secrets' bölməsinə əlavə etdiyinizdən əmin olun.")
     st.stop()
 
 if "messages" not in st.session_state:
@@ -108,40 +111,32 @@ if user_input:
         
         payload = {
             "contents": [{
-                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır. Qısa, dəqiq və sürətli şəkildə azərbaycan dilində cavab ver. İstifadəçi: {user_input}"}]
-            }],
-            "generationConfig": {
-                "temperature": 0.4,
-                "maxOutputTokens": 1000
-            }
+                "parts": [{"text": f"Sənin adın Məmmədyarov AI-dır. Qısa və azərbaycan dilində cavab ver: {user_input}"}]
+            }]
         }
         
-        bot_reply = None
-        req_data = json.dumps(payload).encode("utf-8")
-        
-        # Xəta olarsa avtomatik 3 dəfəyə qədər təkrar cəhd edən mexanizm
-        for attempt in range(3):
-            try:
-                req = urllib.request.Request(
-                    url, 
-                    data=req_data, 
-                    headers={'Content-Type': 'application/json'}
-                )
-                
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    res_json = json.loads(response.read().decode("utf-8"))
-                    if "candidates" in res_json:
-                        bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
-                        break
-            except Exception:
-                time.sleep(1) # 1 saniyə gözləyib yenidən yoxlayır
-                continue
-
-        if bot_reply:
-            st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
-            st.session_state.messages.append({"role": "assistant", "content": bot_reply})
-        else:
-            fallback_msg = "Sistemdə qısamüddətli sıxlıq oldu. Zəhmət olmasa bir az sonra yenidən yazın."
-            st.markdown(f'<div class="bot-bubble">{fallback_msg}</div>', unsafe_allow_html=True)
-            st.session_state.messages.append({"role": "assistant", "content": fallback_msg})
+        try:
+            req_data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                url, 
+                data=req_data, 
+                headers={'Content-Type': 'application/json'}
+            )
             
+            with urllib.request.urlopen(req, timeout=15) as response:
+                res_json = json.loads(response.read().decode("utf-8"))
+                if "candidates" in res_json:
+                    bot_reply = res_json["candidates"][0]["content"]["parts"][0]["text"]
+                    st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_app_html=True)
+                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+                else:
+                    st.markdown(f'<div class="bot-bubble">Model cavab qaytarmadı.</div>', unsafe_allow_html=True)
+                    
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode()
+            if e.code == 429:
+                st.markdown(f'<div class="bot-bubble">⚠️ API limiti aşıldı (429). Google bu açara qısa müddətli məhdudiyyət qoyub. Zəhmət olmasa 1 dəqiqə gözləyin.</div>', unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div class="bot-bubble">Xəta baş verdi ({e.code}): {error_body}</div>', unsafe_allow_html=True)
+        except Exception as e:
+            st.markdown(f'<div class="bot-bubble">Bağlantı xətası: {e}</div>', unsafe_allow_html=True)
