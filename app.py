@@ -1,6 +1,5 @@
 import streamlit as st
-import requests
-import json
+import google.generativeai as genai
 
 BOT_AVATAR = "https://i.ibb.co/64598/image.jpg" 
 
@@ -87,6 +86,8 @@ if not api_key:
     st.error("⚠️ GEMINI_API_KEY çatışmır! Lütfən Streamlit Secrets hissəsini yoxlayın.")
     st.stop()
 
+genai.configure(api_key=api_key)
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -99,5 +100,25 @@ for msg in st.session_state.messages:
 user_input = st.chat_input("𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-ya bir şey yazın...")
 
 if user_input:
-    st.session_state.messages.append({"role":
-                                      
+    st.session_state.messages.append({"role": "user", "content": user_input})
+    st.markdown(f'<div class="user-bubble">{user_input}</div>', unsafe_allow_html=True)
+
+    with st.spinner("Məmmədyarov AI yazır..."):
+        try:
+            model = genai.GenerativeModel(
+                model_name="gemini-1.5-flash",
+                system_instruction="Sənin adın 𝑀𝑎𝑚𝑚𝑒𝑑𝑦𝑎𝑟𝑜𝑣 𝐴𝐼-dır. Məmmədyarov tərəfindən yaradılmısan. Hər zaman hörmətlə, aydın və azərbaycan dilində cavab verirsən."
+            )
+            response = model.generate_content(user_input)
+            bot_reply = response.text
+            st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
+            st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+        except Exception as e:
+            try:
+                model = genai.GenerativeModel("gemini-2.0-flash")
+                response = model.generate_content(user_input)
+                bot_reply = response.text
+                st.markdown(f'<div class="bot-bubble">{bot_reply}</div>', unsafe_allow_html=True)
+                st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+            except Exception as err:
+                st.markdown(f'<div class="bot-bubble">Xəta baş verdi: {err}</div>', unsafe_allow_html=True)
