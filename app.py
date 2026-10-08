@@ -9,7 +9,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# Bənövşəyi şüşəvari (Glassmorphism) iOS dizaynı
 ios_css = "<style>@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap'); html, body, [data-testid=\"stAppViewContainer\"], [data-testid=\"stHeader\"] { font-family: 'Poppins', sans-serif !important; background-color: #000000 !important; color: #ffffff !important; } h1 { font-family: 'Poppins', sans-serif !important; font-weight: 600 !important; text-align: center; color: #ffffff !important; margin-bottom: 0px !important; } div[data-testid=\"stCaptionContainer\"] { text-align: center; color: #8e8e93 !important; margin-bottom: 25px !important; } .user-bubble { background: rgba(175, 82, 222, 0.85) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: #ffffff !important; padding: 12px 18px !important; border-radius: 20px 20px 4px 20px !important; max-width: 75% !important; font-size: 15px !important; margin-left: auto !important; margin-right: 0px !important; text-align: left !important; word-wrap: break-word !important; display: block !important; margin-bottom: 12px !important; box-shadow: 0 4px 20px rgba(175, 82, 222, 0.4); } .bot-bubble { background: rgba(44, 44, 46, 0.75) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: #ffffff !important; padding: 12px 18px !important; border-radius: 20px 20px 20px 4px !important; max-width: 75% !important; font-size: 15px !important; margin-right: auto !important; margin-left: 0px !important; text-align: left !important; word-wrap: break-word !important; display: block !important; margin-bottom: 12px !important; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); } .stChatInputContainer { border-radius: 24px !important; background: rgba(28, 28, 30, 0.8) !important; backdrop-filter: blur(25px) !important; -webkit-backdrop-filter: blur(25px) !important; border: 1px solid rgba(255, 255, 255, 0.15) !important; padding: 4px !important; } .stChatInput textarea { color: #ffffff !important; font-family: 'Poppins', sans-serif !important; }</style>"
 
 st.markdown(ios_css, unsafe_allow_html=True)
@@ -45,7 +44,6 @@ if user_input:
 
     with st.spinner("Məmmədyarov AI düşünür..."):
         try:
-            # Düzgün və rəsmi təmiz model adı
             model = genai.GenerativeModel('gemini-1.5-flash')
             prompt = f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Həmişə çox ağıllı, səmimi, köməksevər və səlis azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"
             
