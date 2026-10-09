@@ -44,7 +44,15 @@ if user_input:
 
     with st.spinner("Məmmədyarov AI düşünür..."):
         try:
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            # Açarınıza uyğun olan mövcud işlək modeli avtomatik tapır
+            for m in genai.list_models():
+                if 'generateContent' in m.supported_generation_methods:
+                    active_model_name = m.name
+                    break
+            else:
+                active_model_name = 'gemini-pro'
+
+            model = genai.GenerativeModel(active_model_name)
             prompt = f"Sənin adın Məmmədyarov AI-dır, Məmmədyarov tərəfindən yaradılmısan. Həmişə çox ağıllı, səmimi, köməksevər və səlis azərbaycan dilində cavab ver. İstifadəçinin mesajı: {user_input}"
             
             response = model.generate_content(prompt)
